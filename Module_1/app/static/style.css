@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+}
+
+/* navigation bar */
+nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+/* nav links */
+nav a {
+    text-decoration: none;
+    color: black;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+/* highlighted tab */
+nav a.active {
+    background-color: lightblue;
+    font-weight: bold;
+}
+
+.home-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+
+    max-width: 1000px;
+}
+
+.bio {
+    width: 60%;
+}
+
+.image {
+    width: 35%;
+    text-align: right;
+}
+
+.image img {
+    max-width: 100%;
+    width: 280px;
+    border-radius: 10px;
+}
