@@ -12,3 +12,6 @@ Before scraping, I checked Grad Cafe's robots.txt file in a browser and saved a 
 reviewed the file to confirm that the pages used for this assignment were not disallowed. The scraper only accesses 
 publicly available applicant entries required for the assignment, uses reasonable delays and does not bypass of 
 restrictions, logins, CAPTCHAs, or rate limits.
+
+During testing, the site returned a Cloudflare block page after several requests.
+I stopped scraping and did not try to bypass the block.
