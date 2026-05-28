@@ -189,15 +189,30 @@ def load_data(filename = "applicant_data.json"):
         data = json.load(f)
     return data
 
-# append date
+# append data
 def append_data(new_records, filename = "applicant_data.json"):
     try:
         existing_records = load_data(filename)
     except FileNotFoundError:
         existing_records = []
+    existing_urls = set()
+    for record in existing_records:
+        if record.get("entry_url"):
+            existing_urls.add(record["entry_url"])
 
-    existing_records.extend(new_records)
+    unique_new_records = []
+
+    for record in new_records:
+        entry_url = record.get("entry_url")
+        if entry_url not in existing_urls:
+            unique_new_records.append(record)
+            if entry_url:
+                existing_urls.add(entry_url)
+    existing_records.extend(unique_new_records)
+
     save_data(existing_records, filename)
+    print(f"Added {len(unique_new_records)} new records.")
+    print(f"Skipped {len(new_records) - len(unique_new_records)} duplicate records.")
 
 # save html for testing
 def save_html(html, filename="test_page.html"):
@@ -347,36 +362,58 @@ if __name__ == "__main__":
     #     print(loaded_data[0])
 
     # test using local html
-    html = load_html("test_page.html")
-    soup = BeautifulSoup(html, "html.parser")
-    rows = soup.find_all("tr")
-    records = parse_page(rows)
-    print(f"Number of Records: {len(records)}")
-    if len(records) > 0:
-        print(f"First Record: \n{records[0]}")
-    save_data(records, "test_applicant_data.json")
-    print("Data saved.")
+    # html = load_html("test_page.html")
+    # soup = BeautifulSoup(html, "html.parser")
+    # rows = soup.find_all("tr")
+    # records = parse_page(rows)
+    # print(f"Number of Records: {len(records)}")
+    # if len(records) > 0:
+    #     print(f"First Record: \n{records[0]}")
+    # save_data(records, "test_applicant_data.json")
+    # print("Data saved.")
 
     # check required categories
-    required_keys = [
-        "program_name",
-        "university",
-        "comment",
-        "date_added",
-        "entry_url",
-        "applicant_status",
-        "acceptance_date",
-        "rejection_date",
-        "season",
-        "student_type",
-        "gre_score",
-        "gre_v_score",
-        "degree",
-        "gpa",
-        "gre_aw",
-        "raw_main_text",
-        "raw_detail_text",
-        ]
-    for key in required_keys:
-        missing_count = sum(1 for record in records if key not in record)
-        print(f"{key} missing records: {missing_count}")
+    # required_keys = [
+    #     "program_name",
+    #     "university",
+    #     "comment",
+    #     "date_added",
+    #     "entry_url",
+    #     "applicant_status",
+    #     "acceptance_date",
+    #     "rejection_date",
+    #     "season",
+    #     "student_type",
+    #     "gre_score",
+    #     "gre_v_score",
+    #     "degree",
+    #     "gpa",
+    #     "gre_aw",
+    #     "raw_main_text",
+    #     "raw_detail_text",
+    #     ]
+    # for key in required_keys:
+    #     missing_count = sum(1 for record in records if key not in record)
+    #     print(f"{key} missing records: {missing_count}")
+
+    # test loop
+    query = "Computer Science"
+    start_page = load_progress()
+    end_page = start_page + 1
+    for page in range(start_page, end_page + 1):
+        print(f"\nScraping page: {page}")
+        url = build_url(query=query, page=page)
+        html = get_page_html(url)
+        if is_blocked(html):
+            print("Blocked")
+            break
+        soup = BeautifulSoup(html, "html.parser")
+        rows = soup.find_all("tr")
+        records = parse_page(rows)
+        print(f"Number of Records: {len(records)}")
+        if len(records) == 0:
+            print("No records found")
+        append_data(records, "test_applicant_data.json")
+        save_progress(page + 1)
+        print(f"Saved Progress: {page} pages")
+        time.sleep(30)
