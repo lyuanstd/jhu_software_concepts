@@ -5,7 +5,7 @@ MODULE_DIR = Path(__file__).resolve().parent
 
 RAW_FILE = MODULE_DIR / "applicant_data.json"
 LLM_INPUT_FILE = MODULE_DIR / "applicant_data_for_llm.json"
-BATCH_OUTPUT_FILE = MODULE_DIR / "llm_batches" / "batch_000.jsonl"
+BATCH_DIR = MODULE_DIR / "llm_batches"
 FINAL_OUTPUT_FILE = MODULE_DIR / "llm_extend_applicant_data.json"
 
 
@@ -34,11 +34,15 @@ def prepare_llm_input():
 
 def convert_jsonl_to_json():
     cleaned_records = []
+    batch_files = sorted(BATCH_DIR.glob("batch_*.jsonl"))
+    print(f"Found {len(batch_files)} batch files.")
+    for batch_file in batch_files:
+        print(f"Reading {batch_file.name}")
 
-    with open(BATCH_OUTPUT_FILE, "r", encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                cleaned_records.append(json.loads(line))
+        with open(batch_file, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    cleaned_records.append(json.loads(line))
 
     with open(FINAL_OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(cleaned_records, f, ensure_ascii=False, indent=2)
@@ -46,7 +50,9 @@ def convert_jsonl_to_json():
     print(f"Created {FINAL_OUTPUT_FILE}")
     print(f"Cleaned records: {len(cleaned_records)}")
 
-
-if __name__ == "__main__":
+def clean_data():
     prepare_llm_input()
     convert_jsonl_to_json()
+
+if __name__ == "__main__":
+    clean_data()

@@ -17,7 +17,8 @@ The project consists of two major components:
 2. Data Cleaning (clean.py and provided LLM tools)
 
 ### Responsible Scraping
-Before collecting data, I reviewed the site’s robots.txt file to verify that scraping the survey pages was permitted. A screenshot of the robots.txt file is included as screenshot.jpg.
+Before collecting data, I reviewed the site’s robots.txt file to verify that scraping the survey pages was permitted. 
+A screenshot of the robots.txt file is included as screenshot.jpg.
 
 To comply with responsible scraping practices:
 
@@ -29,12 +30,9 @@ To comply with responsible scraping practices:
 * Progress is saved so interrupted scraping jobs can be resumed later.
 
 ### Data Collection (scrape.py)
-The scraper uses:
 
-* urllib.parse.urlencode() to construct query URLs
-* Selenium to render dynamic page content
-* BeautifulSoup/string method to parse HTML
-
+The scraper uses a hybrid workflow: urllib constructs Grad Cafe URLs, Selenium with Chrome + Selenium Manager renders 
+public result pages, explicit waits wait for table rows, and BeautifulSoup parses the rendered HTML.
 The scraper automatically handles pagination and iterates through result pages.
 
 For each applicant record, the scraper extracts:
@@ -87,18 +85,28 @@ Example:
 The full dataset is stored as a JSON array.
 
 ### Data cleaning (clean.py)
-The provided local language model expects a field named: program, which contains both the program and university name.
-However, my scraped dataset stores these values separately as: program_name, and university. Therefore, clean.py creates
-an intermediate field: program = "program_name, university"
+The scraped dataset contains many inconsistent representations of program and university names.
+To address this issue, I used the local LLM standardization workflow provided with the assignment. The cleaning process 
+was implemented in multiple stages.
 
-This allows the provided LLM tool to process the records without modifying the original scraped data structure.
+First, clean.py prepares the scraped dataset for LLM processing. The script reads applicant_data.json and creates a new 
+field called program, which combines the original program_name and university fields into a single text string. 
+This format matches the input expected by the provided LLM standardization tool.
+The prepared records are saved to applicant_data_for_llm.json.
 
-The cleaning pipeline preserves the original values while adding:
+The actual LLM standardization is performed using the provided files in the llm_hosting directory. The model generates 
+two additional fields:
 
 * llm-generated-program
 * llm-generated-university
 
-The cleaned output is saved as: llm_extend_applicant_data.json
+These fields contain standardized versions of the program and university names while preserving the original scraped 
+values.
+
+Because the dataset contained more than 50,000 entries, the LLM standardization step was performed in batches 
+of approximately 5,000 records using run_llm_batches. Processing the data in batches improved reliability, and allowed 
+interrupted runs to be resumed without repeating previously completed work. After all batches were processed, the 
+outputs were merged into a single cleaned JSON file: llm_extend_applicant_data.json.
 
 ### Reproducibility
 To reproduce the results:
@@ -106,3 +114,8 @@ To reproduce the results:
 2. Run the scraper: scrape.py
 3. Run the cleaning pipeline: clean.py
 4. Run the provided LLM standardization tool
+
+## Known Bugs
+During development on macOS, Selenium initially could not locate ChromeDriver automatically. A temporary local path 
+configuration was used for testing. The final submitted version removes machine-specific paths and relies on Selenium's 
+default driver discovery mechanism for portability.

@@ -1,15 +1,20 @@
 from urllib.parse import urlencode
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from pathlib import Path
 import time
 import json
 
 BASE_SURVEY_URL = "https://www.thegradcafe.com/survey"
+
+MODULE_DIR = Path(__file__).resolve().parent
+DATA_FILE = MODULE_DIR / "applicant_data.json"
+PROGRESS_FILE = MODULE_DIR / "scrape_progress.txt"
+TEST_HTML_FILE = MODULE_DIR / "test_page.html"
 
 # build a Grad Cafe survey URL
 def build_url(query=None, page=1):
@@ -31,12 +36,8 @@ def build_url(query=None, page=1):
 def get_page_html(url):
     chrome_options = Options()
     chrome_options.page_load_strategy = "eager"
-    chrome_options.binary_location = ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
-    service = Service("/Users/lyuan/Desktop/LY/13. Tools/chromedriver")
-    driver = webdriver.Chrome(
-        service=service,
-        options=chrome_options
-    )
+
+    driver = webdriver.Chrome(options=chrome_options)
 
     driver.set_page_load_timeout(60)
 
@@ -182,18 +183,18 @@ def is_blocked(html):
     return False
 
 # save date to json
-def save_data(records, filename = "module_2/applicant_data.json"):
+def save_data(records, filename=DATA_FILE):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(records, f, ensure_ascii=False, indent=4)
 
 # load data
-def load_data(filename = "module_2/applicant_data.json"):
+def load_data(filename=DATA_FILE):
     with open(filename, "r", encoding="utf-8") as f:
         data = json.load(f)
     return data
 
 # append data
-def append_data(new_records, filename = "module_2/applicant_data.json"):
+def append_data(new_records, filename=DATA_FILE):
     try:
         existing_records = load_data(filename)
     except FileNotFoundError:
@@ -217,13 +218,7 @@ def append_data(new_records, filename = "module_2/applicant_data.json"):
     print(f"Added {len(unique_new_records)} new records.")
     print(f"Skipped {len(new_records) - len(unique_new_records)} duplicate records.")
 
-# save html for testing
-def save_html(html, filename="test_page.html"):
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(html)
-
 # save page progress
-PROGRESS_FILE = "module_2/scrape_progress.txt"
 def save_progress(page):
     with open(PROGRESS_FILE, "w", encoding="utf-8") as f:
         f.write(str(page))
@@ -236,170 +231,8 @@ def load_progress():
     except FileNotFoundError:
         return 1
 
-# load html for testing
-def load_html(filename="test_page.html"):
-    with open(filename, "r", encoding="utf-8") as f:
-        return f.read()
 
-if __name__ == "__main__":
-    # build url
-    # url = build_url(query="Computer Science", page=1)
-    # print("URL:")
-    # print(url)
-
-    # get html
-    # html = get_page_html(url)
-    # print("HTML length: ")
-    # print(len(html))
-
-    # html parser
-    # soup = BeautifulSoup(html, "html.parser")
-    # print("Page title: ")
-    # print(soup.title)
-
-    # get rows
-    # rows = soup.find_all("tr")
-    # print("Number of tr rows: ")
-    # print(len(rows))
-
-    # find main rows
-    # for i, row in enumerate(rows):
-    #     print("\n---ROW", i, "---")
-    #     print(" ".join(row.stripped_strings))
-
-    # get main rows
-    # main_rows = []
-    # for row in rows:
-    #     if is_main_row(row):
-    #         main_rows.append(row)
-    # print("Number of main rows:")
-    # print(len(main_rows))
-    # for i, row in enumerate(main_rows[:5]):
-        # print(f"\n--- MAIN ROW {i} ---")
-        # print(" ".join(row.stripped_strings))
-
-    # find main row cells
-    # first_row = main_rows[0]
-    # cells = first_row.find_all("td")
-    # print("Number of cells: ")
-    # print(len(cells))
-    # for i, cell in enumerate(cells):
-    #     print(f"\n--- CELL {i} ---")
-    #     print(" ".join(cell.stripped_strings))
-
-    # test main row parser
-    # first_record = parse_main_row(main_rows[0])
-    # print("\nFirst record:")
-    # print(first_record)
-
-    # test details
-    # first_detail = parse_detail_row(rows[2])
-    # print("\nFirst detail:")
-    # print(first_detail)
-
-    # test record combination
-    # first_record.update(first_detail)
-    # print("\nFirst record:")
-    # print(first_record)
-
-    # test page parser
-    # records = parse_page(rows)
-    # print(len(records))
-    # for record in records[:5]:
-    #     print(record)
-
-    # test multiple pages
-    # all_records = []
-    # for page in range(1, 2):
-    #     print(f"\nScraping page {page}...")
-    #     url = build_url(query="Computer Science", page=page)
-    #     html = get_page_html(url)
-    #     if is_blocked(html):
-    #         print("You have been blocked.")
-    #         break
-    #     else:
-    #         save_html(html)
-    #         print("Saved HTML locally")
-    #     soup = BeautifulSoup(html, "html.parser")
-    #     rows = soup.find_all("tr")
-    #     page_records = parse_page(rows)
-    #     print(f"Number of Records: {len(page_records)}")
-    #     all_records.extend(page_records)
-    #     time.sleep(60)
-    # print("\nAll records:")
-    # print(len(all_records))
-    # print(all_records[0])
-    # print(all_records[1])
-    # print(all_records[10])
-    # print(all_records[30])
-    #
-    # save_data(all_records)
-    # print("Data saved.")
-    #
-    # loaded_data = load_data()
-    # print("\nLoaded data:")
-    # print(len(loaded_data))
-    # print("\nFirst loaded record: ")
-    # print(loaded_data[0])
-
-    # test locally saved html
-    # url = build_url(query="Computer Science", page=1)
-    # html = get_page_html(url)
-    # if is_blocked(html):
-    #     print("You have been blocked.")
-    # else:
-    #     save_html(html, "test_page.html")
-    #     print("Saved test HTML locally")
-    #     soup = BeautifulSoup(html, "html.parser")
-    #     rows = soup.find_all("tr")
-    #     records = parse_page(rows)
-    #     print(f"Number of Records: {len(records)}")
-    #     if len(records) > 0:
-    #         print(f"First Record: \n{records[0]}")
-    #     save_data(records, "test_applicant_data.json")
-    #     print("Data saved.")
-    #     loaded_data = load_data("test_applicant_data.json")
-    #     print("\nLoaded data:")
-    #     print(len(loaded_data))
-    #     print("\nFirst loaded record: ")
-    #     print(loaded_data[0])
-
-    # test using local html
-    # html = load_html("test_page.html")
-    # soup = BeautifulSoup(html, "html.parser")
-    # rows = soup.find_all("tr")
-    # records = parse_page(rows)
-    # print(f"Number of Records: {len(records)}")
-    # if len(records) > 0:
-    #     print(f"First Record: \n{records[0]}")
-    # save_data(records, "test_applicant_data.json")
-    # print("Data saved.")
-
-    # check required categories
-    # required_keys = [
-    #     "program_name",
-    #     "university",
-    #     "comment",
-    #     "date_added",
-    #     "entry_url",
-    #     "applicant_status",
-    #     "acceptance_date",
-    #     "rejection_date",
-    #     "season",
-    #     "student_type",
-    #     "gre_score",
-    #     "gre_v_score",
-    #     "degree",
-    #     "gpa",
-    #     "gre_aw",
-    #     "raw_main_text",
-    #     "raw_detail_text",
-    #     ]
-    # for key in required_keys:
-    #     missing_count = sum(1 for record in records if key not in record)
-    #     print(f"{key} missing records: {missing_count}")
-
-    # test loop
+def scrape_data():
     start_page = load_progress()
     end_page = start_page + 789
     for page in range(start_page, end_page + 1):
@@ -432,3 +265,6 @@ if __name__ == "__main__":
         save_progress(page + 1)
         print(f"Saved Progress: {page} pages")
         time.sleep(21)
+
+if __name__ == "__main__":
+    scrape_data()

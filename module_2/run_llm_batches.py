@@ -8,7 +8,6 @@ BATCH_DIR = MODULE_DIR / "llm_batches"
 
 PYTHON_COMMAND = "python"
 
-
 def count_jsonl_lines(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         return sum(1 for line in f if line.strip())
