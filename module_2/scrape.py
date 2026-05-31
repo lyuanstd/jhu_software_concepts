@@ -23,9 +23,9 @@ def build_url(query=None, page=1):
         params["query"] = query
 
     query_string = urlencode(params)
-
-    full_url = f"{BASE_SURVEY_URL}?{query_string}"
-    return full_url
+    if query_string:
+        return f"{BASE_SURVEY_URL}?{query_string}"
+    return BASE_SURVEY_URL
 
 # Open a webpage with Selenium and return the rendered HTML
 def get_page_html(url):
@@ -38,7 +38,7 @@ def get_page_html(url):
         options=chrome_options
     )
 
-    driver.set_page_load_timeout(30)
+    driver.set_page_load_timeout(60)
 
     try:
         driver.get(url)
@@ -130,12 +130,12 @@ def parse_detail_row(row):
             detail["student_type"] = item
         elif item.startswith("GPA"):
             detail["gpa"] = item.replace("GPA", "").strip()
-        elif item.startswith("GRE"):
-            detail["gre_score"] = item.replace("GRE", "").strip()
         elif item.startswith("GRE V"):
             detail["gre_v_score"] = item.replace("GRE V", "").strip()
         elif item.startswith("GRE AW"):
             detail["gre_aw"] = item.replace("GRE AW", "").strip()
+        elif item.startswith("GRE"):
+            detail["gre_score"] = item.replace("GRE", "").strip()
 
     return detail
 
@@ -171,26 +171,29 @@ def parse_page(rows):
 
 # block detection
 def is_blocked(html):
-    blocked = "Sorry, you have been blocked"
-
-    if blocked in html:
-        return True
-
+    blocked = [
+        "Sorry, you have been blocked",
+        "You are unable to access thegradcafe.com",
+        "Cloudflare Ray ID"
+    ]
+    for b in blocked:
+        if b in html:
+            return True
     return False
 
 # save date to json
-def save_data(records, filename = "applicant_data.json"):
+def save_data(records, filename = "module_2/applicant_data.json"):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(records, f, ensure_ascii=False, indent=4)
 
 # load data
-def load_data(filename = "applicant_data.json"):
+def load_data(filename = "module_2/applicant_data.json"):
     with open(filename, "r", encoding="utf-8") as f:
         data = json.load(f)
     return data
 
 # append data
-def append_data(new_records, filename = "applicant_data.json"):
+def append_data(new_records, filename = "module_2/applicant_data.json"):
     try:
         existing_records = load_data(filename)
     except FileNotFoundError:
@@ -220,7 +223,7 @@ def save_html(html, filename="test_page.html"):
         f.write(html)
 
 # save page progress
-PROGRESS_FILE = "scrape_progression.txt"
+PROGRESS_FILE = "module_2/scrape_progress.txt"
 def save_progress(page):
     with open(PROGRESS_FILE, "w", encoding="utf-8") as f:
         f.write(str(page))
@@ -397,13 +400,24 @@ if __name__ == "__main__":
     #     print(f"{key} missing records: {missing_count}")
 
     # test loop
-    query = "Computer Science"
     start_page = load_progress()
-    end_page = start_page + 1
+    end_page = start_page + 789
     for page in range(start_page, end_page + 1):
         print(f"\nScraping page: {page}")
-        url = build_url(query=query, page=page)
-        html = get_page_html(url)
+        url = build_url(page=page)
+        try:
+            html = get_page_html(url)
+        except Exception as e:
+            print(f"Error on page {page}: {e}")
+            print("Waiting 60 seconds and retrying...")
+
+            time.sleep(60)
+
+            try:
+                html = get_page_html(url)
+            except Exception:
+                print("Retry failed. Stopping scraping...")
+                break
         if is_blocked(html):
             print("Blocked")
             break
@@ -413,7 +427,8 @@ if __name__ == "__main__":
         print(f"Number of Records: {len(records)}")
         if len(records) == 0:
             print("No records found")
-        append_data(records, "test_applicant_data.json")
+            break
+        append_data(records)
         save_progress(page + 1)
         print(f"Saved Progress: {page} pages")
-        time.sleep(30)
+        time.sleep(21)

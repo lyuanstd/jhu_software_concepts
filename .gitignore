@@ -15,4 +15,4 @@ venv/
 # Scraper test files
 module_2/test_page.html
 module_2/test_applicant_data.json
-scrape_progress.txt
+scrape_progress.txtmodule_2/llm_hosting/models/
