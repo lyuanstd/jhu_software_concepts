@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 from pathlib import Path
 import time
@@ -37,7 +38,13 @@ def get_page_html(url):
     chrome_options = Options()
     chrome_options.page_load_strategy = "eager"
 
-    driver = webdriver.Chrome(options=chrome_options)
+    # Selenium automatically locate ChromeDriver
+    #driver = webdriver.Chrome(options=chrome_options)
+
+    #Local environment
+    chrome_options.binary_location = ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+    service = Service("/Users/lyuan/Desktop/LY/13. Tools/chromedriver")
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
     driver.set_page_load_timeout(60)
 
@@ -232,9 +239,13 @@ def load_progress():
         return 1
 
 
-def scrape_data():
-    start_page = load_progress()
-    end_page = start_page + 789
+def scrape_data(max_pages=500, use_progress=True):
+    if use_progress:
+        start_page = load_progress()
+    else:
+        start_page = 1
+    end_page = start_page + max_pages - 1
+
     for page in range(start_page, end_page + 1):
         print(f"\nScraping page: {page}")
         url = build_url(page=page)
@@ -251,9 +262,11 @@ def scrape_data():
             except Exception:
                 print("Retry failed. Stopping scraping...")
                 break
+
         if is_blocked(html):
             print("Blocked")
             break
+
         soup = BeautifulSoup(html, "html.parser")
         rows = soup.find_all("tr")
         records = parse_page(rows)
@@ -262,9 +275,12 @@ def scrape_data():
             print("No records found")
             break
         append_data(records)
-        save_progress(page + 1)
-        print(f"Saved Progress: {page} pages")
+        if use_progress:
+            save_progress(page + 1)
+            print(f"Saved Progress: {page} pages")
+
         time.sleep(21)
+
 
 if __name__ == "__main__":
     scrape_data()

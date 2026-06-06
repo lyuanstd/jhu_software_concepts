@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GradCafe Analysis</title>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+    <div class="top-right">
+        <a href="/update-analysis">
+            <button>Update Analysis</button>
+        </a>
+    </div>
+
+    <h1>GradCafe PostgreSQL Analysis</h1>
+
+    <p>
+        This page displays SQL analysis results from the GradCafe applicant database.
+    </p>
+
+    <div class="card">
+        <h2>Data Controls</h2>
+        <p>
+            <strong>Pull Data:</strong>
+            This button runs the Module 2 scraping and cleaning code to check GradCafe for new entries.
+            If new data is available, the local PostgreSQL database is updated.
+        </p>
+        <a href="/pull-data">
+            <button>Pull Data</button>
+        </a>
+        <p>
+            <strong>Update Analysis:</strong>
+            This button refreshes the analysis using the most recent data currently stored in the database.
+            If a data pull is currently running, the analysis will not update until the pull is finished.
+        </p>
+        {% if is_pulling_data %}
+            <p class="status">
+                Status: Data pull is currently running.
+            </p>
+        {% else %}
+            <p class="status">
+                Status: No data pull is currently running.
+            </p>
+        {% endif %}
+    </div>
+
+    {% if message %}
+        <div class="message">
+            <strong>Message:</strong>
+            {{ message }}
+        </div>
+    {% endif %}
+
+    {% if results %}
+        <h2>Query Results</h2>
+        {% for item in results %}
+            <div class="query-block">
+                <h3>{{ item.question }}</h3>
+                <ul>
+                    {% for row in item.result %}
+                        <li>{{ row }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
