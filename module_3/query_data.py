@@ -1,4 +1,14 @@
 import psycopg
+from decimal import Decimal
+
+# convert decimal result to string
+def format_value(value):
+    if isinstance(value, Decimal):
+        return str(value)
+    return str(value)
+
+def format_row(row):
+    return ", ".join(format_value(value) for value in row)
 
 # connect to the local PostgreSQL database
 def get_connection():
@@ -13,16 +23,20 @@ def run_query(conn, question, sql):
     cur.execute(sql)
     result = cur.fetchall()
 
+    formatted_results = []
+
     print("\n" + question)
     print("-" * len(question))
 
     for row in result:
-        print(row)
+        formatted_row = format_row(row)
+        formatted_results.append(formatted_row)
+        print(formatted_row)
 
     cur.close()
-    return result
+    return formatted_results
 
-# Question list
+# get list of questions and sql results
 def get_queries():
     return [
         {
@@ -36,10 +50,11 @@ def get_queries():
         {
             "question": "2. What percentage of entries are from international students (not American or Other) ?",
             "sql": """
-                   SELECT ROUND(
-                                  100.0 * COUNT(*) /
-                                  (SELECT COUNT(*) FROM applicants), 2
-                          )
+                   SELECT CONCAT(
+                      ROUND(
+                          100.0 * COUNT(*) /
+                          (SELECT COUNT(*) FROM applicants), 2
+                      ),'%')
                    FROM applicants
                    WHERE us_or_international = 'International';
                    """
@@ -66,10 +81,10 @@ def get_queries():
         {
             "question": "5. What percent of entries for Fall 2026 are Acceptances (to two decimal places)?",
             "sql": """
-                   SELECT ROUND(
+                   SELECT CONCAT(ROUND(
                                   100.0 * COUNT(*) /
                                   (SELECT COUNT(*) FROM applicants WHERE term = 'Fall 2026'), 2
-                          )
+                          ),'%')
                    FROM applicants
                    WHERE term = 'Fall 2026'
                      AND status LIKE 'Accepted%';
@@ -130,7 +145,7 @@ def get_queries():
             "question": "10. How many applications were submitted to Artificial Intelligence master’s programs, and what was the acceptance rate?",
             "sql": """
                     SELECT COUNT(*) AS total_applications,
-                           ROUND(
+                           CONCAT(ROUND(
                                    100.0 * SUM(
                                            CASE
                                                WHEN status LIKE 'Accepted%' THEN 1
@@ -138,7 +153,7 @@ def get_queries():
                                                END
                                            ) / COUNT(*),
                                    2
-                           )        AS acceptance_rate
+                           ),'%') AS acceptance_rate
                     FROM applicants
                     WHERE degree = 'Masters'
                       AND program ILIKE '%artificial intelligence%';
@@ -147,18 +162,19 @@ def get_queries():
         {
             "question": "11. What are the application counts and the acceptance rate of JHU and UT Austin?",
             "sql": """
-                    SELECT CASE
-                               When program ILIKE '%johns hopkins%' THEN 'Johns Hopkins University'
-                               When program ILIKE '%university of texas at austin%' THEN 'University of Texas at Austin'
-                               END    AS university,
+                    SELECT
+                        CASE
+                           When program ILIKE '%johns hopkins%' THEN 'Johns Hopkins University'
+                           When program ILIKE '%university of texas at austin%' THEN 'University of Texas at Austin'
+                           END    AS university,
                            COUNT(*)   AS total_applications,
-                           ROUND(
+                           CONCAT(ROUND(
                                    100.0 * SUM(
                                            CASE
                                                WHEN status LIKE 'Accepted%' THEN 1
                                                ELSE 0
                                                END) / COUNT(*),
-                                   2) AS acceptance_rate
+                                   2),'%') AS acceptance_rate
                     FROM applicants
                     WHERE program ILIKE '%johns hopkins%'
                           OR program ILIKE '%university of texas at austin%'

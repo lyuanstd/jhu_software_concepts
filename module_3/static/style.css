@@ -83,3 +83,12 @@ ul {
 li {
     margin-bottom: 5px;
 }
+
+.note {
+    color: #555;
+    font-size: 14px;
+    background-color: #fff8e6;
+    border-left: 4px solid #f0b429;
+    padding: 10px;
+    border-radius: 4px;
+}

@@ -25,26 +25,21 @@
         <h2>Data Controls</h2>
         <p>
             <strong>Pull Data:</strong>
-            This button runs the Module 2 scraping and cleaning code to check GradCafe for new entries.
+            This button runs the Module 2 scrape and clean code to check GradCafe for new entries.
             If new data is available, the local PostgreSQL database is updated.
         </p>
         <a href="/pull-data">
             <button>Pull Data</button>
         </a>
+        <p class="note">
+        Note: This process may take some time because it opens a browser, checks recent GradCafe pages, cleans the scraped data, and inserts new records into PostgreSQL.
+        </p>
         <p>
             <strong>Update Analysis:</strong>
-            This button refreshes the analysis using the most recent data currently stored in the database.
-            If a data pull is currently running, the analysis will not update until the pull is finished.
+            The top right button refreshes the analysis using the most recent data currently stored in the database.
+            If a request to pull data is currently running, the analysis will not update.
         </p>
-        {% if is_pulling_data %}
-            <p class="status">
-                Status: Data pull is currently running.
-            </p>
-        {% else %}
-            <p class="status">
-                Status: No data pull is currently running.
-            </p>
-        {% endif %}
+
     </div>
 
     {% if message %}

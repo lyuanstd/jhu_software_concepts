@@ -39,12 +39,12 @@ def get_page_html(url):
     chrome_options.page_load_strategy = "eager"
 
     # Selenium automatically locate ChromeDriver
-    #driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)
 
-    #Local environment
-    chrome_options.binary_location = ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
-    service = Service("/Users/lyuan/Desktop/LY/13. Tools/chromedriver")
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    # Local environment
+    # chrome_options.binary_location = ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+    # service = Service("/Users/lyuan/Desktop/LY/13. Tools/chromedriver")
+    # driver = webdriver.Chrome(service=service, options=chrome_options)
 
     driver.set_page_load_timeout(60)
 
