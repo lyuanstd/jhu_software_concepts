@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 import pytest
 import psycopg
 import refresh_data
+import os
 from load_data import (
     create_table,
     insert_data,
@@ -16,6 +17,9 @@ from load_data import (
 
 
 def get_test_connection():
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        return psycopg.connect(database_url)
     return psycopg.connect(
         dbname="gradcafe_test",
         user="lyuan"

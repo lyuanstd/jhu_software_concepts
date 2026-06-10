@@ -1,13 +1,15 @@
 from unittest.mock import patch
-
+import os
 import pytest
 import psycopg
-
 from app import create_app
 from load_data import create_table, insert_data
 
 
 def get_test_connection():
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        return psycopg.connect(database_url)
     return psycopg.connect(
         dbname="gradcafe_test",
         user="lyuan"
