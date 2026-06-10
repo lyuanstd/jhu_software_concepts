@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.4, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/lyuan/PycharmProjects/PythonProject/jhu_software_concepts/module_4
+configfile: pytest.ini
+testpaths: tests
+plugins: cov-7.1.0, anyio-4.13.0
+collected 41 items
+
+tests/test_analysis_format.py ..                                         [  4%]
+tests/test_buttons.py ........                                           [ 24%]
+tests/test_db_insert.py ...............                                  [ 60%]
+tests/test_flask_page.py .....                                           [ 73%]
+tests/test_integration_end_to_end.py ..                                  [ 78%]
+tests/test_query_data.py .........                                       [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.13.4-final-0 _______________
+
+Name                  Stmts   Miss  Cover   Missing
+---------------------------------------------------
+src/__init__.py           0      0   100%
+src/app.py               41      0   100%
+src/load_data.py         48      0   100%
+src/query_data.py        34      0   100%
+src/refresh_data.py      22      0   100%
+---------------------------------------------------
+TOTAL                   145      0   100%
+============================== 41 passed in 0.54s ==============================

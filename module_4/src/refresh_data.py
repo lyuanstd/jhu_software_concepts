@@ -5,7 +5,7 @@ import sys
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODULE_2_DIR = BASE_DIR / "module_2"
 sys.path.append(str(MODULE_2_DIR))
-
+import os
 
 def refresh_database():
     from scrape import scrape_data
@@ -29,10 +29,15 @@ def refresh_database():
     # load the cleaned non-LLM data and append new records to PostgreSQL
     records = load_json_data(CLEAN_DATA_PATH)
 
-    conn = psycopg.connect(
-        dbname="gradcafe",
-        user="lyuan"
-    )
+    database_url = os.getenv("DATABASE_URL")
+
+    if database_url:
+        conn = psycopg.connect(database_url)
+    else:
+        conn = psycopg.connect(
+            dbname="gradcafe",
+            user="lyuan"
+        )
 
     create_table_if_not_exists(conn)
     inserted_count = insert_data(conn, records)
@@ -41,6 +46,6 @@ def refresh_database():
 
     return inserted_count
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     count = refresh_database()
     print(f"{count} new records inserted.")

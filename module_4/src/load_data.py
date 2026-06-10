@@ -161,7 +161,7 @@ def insert_data(conn, records):
 
     return inserted_count
 
-def main():
+def main(): # pragma: no cover
     # connect to DATABASE_URL or local PostgreSQL database
     database_url = get_database_url()
 
@@ -188,5 +188,5 @@ def main():
     print(f"{inserted} records inserted.")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

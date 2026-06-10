@@ -1,5 +1,6 @@
 import psycopg
 from decimal import Decimal
+import os
 
 # convert decimal result to string
 def format_value(value):
@@ -10,8 +11,13 @@ def format_value(value):
 def format_row(row):
     return ", ".join(format_value(value) for value in row)
 
-# connect to the local PostgreSQL database
+# connect to DATABASE_URL or local PostgreSQL database
 def get_connection():
+    database_url = os.getenv("DATABASE_URL")
+
+    if database_url:
+        return psycopg.connect(database_url)
+
     return psycopg.connect(
         dbname="gradcafe",
         user="lyuan"
@@ -193,5 +199,5 @@ def main():
     conn.close()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
