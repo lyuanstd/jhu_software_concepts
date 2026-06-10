@@ -2,10 +2,15 @@ import psycopg
 import json
 from datetime import datetime
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 LLM_DATA_PATH = BASE_DIR / "module_2" / "llm_extend_applicant_data.json"
 CLEAN_DATA_PATH = BASE_DIR / "module_2" / "applicant_data_for_llm.json"
+
+def get_database_url():
+    """Return the database URL from the environment, if available."""
+    return os.getenv("DATABASE_URL")
 
 # load GradCafe dataset from JSON
 # use llm-processed data for requesting existing data
@@ -157,11 +162,16 @@ def insert_data(conn, records):
     return inserted_count
 
 def main():
-    # connect to the local PostgreSQL database
-    conn = psycopg.connect(
-        dbname="gradcafe",
-        user="lyuan"
-    )
+    # connect to DATABASE_URL or local PostgreSQL database
+    database_url = get_database_url()
+
+    if database_url:
+        conn = psycopg.connect(database_url)
+    else:
+        conn = psycopg.connect(
+            dbname="gradcafe",
+            user="lyuan"
+        )
 
     records = load_json_data()
     create_table(conn)
