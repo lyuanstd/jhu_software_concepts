@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GradCafe Analysis</title>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+    <div class="top-right">
+       <form method="post" action="/update-analysis">
+            <button type="submit" data-testid="update-analysis-btn">
+                Update Analysis
+            </button>
+       </form>
+    </div>
+
+    <h1>GradCafe PostgreSQL Analysis</h1>
+
+    <p>
+        This page displays SQL analysis results from the GradCafe applicant database.
+    </p>
+
+    <div class="card">
+        <h2>Data Controls</h2>
+        <p>
+            <strong>Pull Data:</strong>
+            This button runs the Module 2 scrape and clean code to check GradCafe for new entries.
+            If new data is available, the local PostgreSQL database is updated.
+        </p>
+        <form method="post" action="/pull-data">
+            <button type="submit" data-testid="pull-data-btn">
+                Pull Data
+            </button>
+        </form>
+        <p class="note">
+        Note: This process may take some time because it opens a browser, checks recent GradCafe pages, cleans the scraped data, and inserts new records into PostgreSQL.
+        </p>
+        <p>
+            <strong>Update Analysis:</strong>
+            The top right button refreshes the analysis using the most recent data currently stored in the database.
+            If a request to pull data is currently running, the analysis will not update.
+        </p>
+
+    </div>
+
+    {% if message %}
+        <div class="message">
+            <strong>Message:</strong>
+            {{ message }}
+        </div>
+    {% endif %}
+
+    {% if results %}
+        <h2>Query Results</h2>
+        {% for item in results %}
+            <div class="query-block">
+                <h3>{{ item.question }}</h3>
+                <p><strong>Answer: </strong></p>
+                <ul>
+                    {% for row in item.result %}
+                        <li>{{ row }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
