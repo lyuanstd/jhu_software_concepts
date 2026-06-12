@@ -167,4 +167,7 @@ Documentation includes:
 Because the GitHub repository is private, Read the Docs Community cannot host the documentation. The generated HTML 
 documentation is included directly in the repository.
 
+The active GitHub Actions workflow is located at the repository root under .github/workflows/tests.yml, because GitHub 
+Actions only recognizes workflow files stored in the repository-level .github/workflows directory. A copy is also 
+included under module_4/.github/workflows/tests.yml for assignment deliverables.
 ---
