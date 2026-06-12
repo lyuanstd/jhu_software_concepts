@@ -1,82 +1,170 @@
-# Module 3 - Database Queries Assignment
+# Module 4 - Testing and Documentation
 Name: Liqing Yuan
 
 JHED ID: lyuan20
 
 ## Overview
-This project extends the GradCafe web scraping application from Module 2 by loading the scraped and cleaned data into a 
-PostgreSQL database, querying the data to answer questions and creating a Flask web application for interactive analysis.
-The dynamic webpage displays SQL results, and allows users to pull new GradCafe data and refresh analysis results.
 
-## Approach
-### Prerequisites
-Before running the project, install:
-* Python 3
-* PostgreSQL
-* Google Chrome and ChromeDriver (for scraping)
-Create a PostgreSQL database named "gradcafe"
+This project extends the GradCafe Analytics System developed in Module 3 by adding automated testing, continuous 
+integration, and documentation.
 
-### Install Required Packages
+The application collects graduate admissions data from GradCafe, stores the data in PostgreSQL, performs SQL-based 
+analysis, and presents the results through a Flask web application.
+
+This module focuses on software quality and maintainability through:
+
+- Automated Pytest test suites
+- Database integration tests
+- End-to-end workflow testing
+- GitHub Actions continuous integration
+- Sphinx-generated developer documentation
+
+---
+
+## Features
+
+The system provides the following functionality:
+
+- Flask web application for viewing admissions analysis
+- PostgreSQL database using the Module 3 schema
+- Automated data refresh workflow
+- SQL-based admissions statistics and reporting
+- Idempotent database inserts using uniqueness constraints
+- Comprehensive Pytest test suite
+- GitHub Actions automated testing
+- Sphinx documentation and API reference
+
+---
+
+## Project Structure
+
+```text
+
+module_4/
+
+├── src/
+
+│   ├── app.py
+
+│   ├── load_data.py
+
+│   ├── query_data.py
+
+│   ├── refresh_data.py
+
+│   ├── static/
+
+│   └── templates/
+
+├── tests/
+
+├── docs/
+
+├── pytest.ini
+
+├── requirements.txt
+
+├── coverage_summary.txt
+
+└── actions_success.png
+```
+
+
+---
+
+## Prerequisites
+
+The project was developed using:
+
+- Python 3.13
+- PostgreSQL
+- Flask
+- Pytest
+- Sphinx
+
+Install all dependencies with:
+
+```bash
+
 pip install -r requirements.txt
 
-### Run load_data.py
-This script:
-* Creates the applicants table
-* Loads applicant records from the JSON dataset
-* Inserts records into PostgreSQL
+```
 
-### Run query_data.py
-This script executes all required SQL analysis queries and prints results to the console.
+---
 
-### Run the Flask Application
-1. Run app.py to start the Flask server.
-2. Open http://127.0.0.1:5000. This dynamic webpage displays queries and results.
+## PostgreSQL Configuration
 
-### Pull Data
-The Pull Data button reuses the Module 2 scraping workflow to:
-1. Scrape new GradCafe entries.
-2. Clean the scraped data.
-3. Insert only new records into PostgreSQL. Duplicate records are ignored.
+The application supports configuration through the DATABASE_URL environment variable.
 
-### Update Analysis
-The Update Analysis button refreshes the query results using the latest data currently stored in PostgreSQL.
+If DATABASE_URL is not provided, the application falls back to the local PostgreSQL configuration defined in the source 
+code.
 
-If a data pull is currently running, the application prevents analysis updates and displays a message to users.
+---
 
-### Project Files
-* app.py – Flask web application
-* load_data.py – database creation and loading
-* query_data.py – SQL queries
-* refresh_data.py – data refresh workflow
-* templates/index.html – webpage template
-* static/style.css – webpage styling
+## Running the Application
 
-## Development Notes
-### Query 8 and Query 9 Results
-Query 8 and Query 9 analyze PhD Computer Science acceptance results for Carnegie Mellon University, Georgetown 
-University, MIT, and Stanford University.
+From the repository root:
 
-In the current dataset, Georgetown University has zero matching records after applying all filters (PhD, Accepted, 
-Computer Science, and 2026 date criteria). Therefore, Georgetown does not appear in the displayed query results.
+```bash
 
-### ChromeDriver Configuration
-During development on macOS, Selenium initially could not locate ChromeDriver automatically. A temporary machine-specific 
-Chrome and ChromeDriver path configuration was used to test the scraper locally.
+cd module_4
 
-The final submitted version removes hard-coded local paths and relies on Selenium’s default driver discovery mechanism 
-to improve portability across different systems.
+python src/app.py
+
+```
 
 
-### Module 2 Modifications for Faster Refresh
-To make the Pull Data operation more practical for a Flask webpage demonstration, a few modifications were made to the 
-original Module 2 workflow.
+Open the application in a browser: http://127.0.0.1:5000/analysis 
 
-1. Reduced Scraping Scope: The original scraper was designed to process hundreds of pages. For data refresh operations 
-within the web application, the scraper was modified to run a smaller number of pages: scrape_data(max_pages=3, 
-use_progress=False). This allows refresh operations to complete in a reasonable amount of time while still demonstrating
-the ability to include new records.
 
-2. LLM Step Omitted During Refresh: The Pull Data workflow reuses the scraping and cleaning stages from Module 2 but 
-does not rerun the LLM enrichment step. This significantly reduces refresh time. New records are cleaned and inserted 
-into PostgreSQL, while previously generated LLM fields remain available for analysis.
+---
 
+## Running Tests
+
+Run the full test suite: 
+
+```bash
+
+python -m pytest 
+
+```
+
+Run only marked tests: 
+
+```bash
+
+python -m pytest -m "web or buttons or analysis or db or integration"
+
+```
+
+---
+
+## Test Coverage
+
+The project uses pytest-cov to measure code coverage.
+
+Coverage proof is stored in: module_4/coverage_summary.txt 
+
+The project achieves 100% coverage for all application logic under module_4/src.
+
+---
+
+## Documentation
+
+Sphinx documentation is generated locally. 
+
+Generated HTML files: module_4/docs/build/html
+
+Open the documentation homepage: module_4/docs/build/html/index.html 
+
+Documentation includes:
+
+- Overview and setup
+- Architecture
+- Testing guide
+- API reference
+
+Because the GitHub repository is private, Read the Docs Community cannot host the documentation. The generated HTML 
+documentation is included directly in the repository.
+
+---

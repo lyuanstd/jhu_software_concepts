@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Architecture &#8212; GradCafe Graduate Admissions Analytics System 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Testing Guide" href="testing.html" />
+    <link rel="prev" title="Overview and Setup" href="overview.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">¶</a></h1>
+<p>The GradCafe analytics application has three main layers: the web layer, the ETL layer, and the database layer.</p>
+<section id="web-layer">
+<h2>Web Layer<a class="headerlink" href="#web-layer" title="Link to this heading">¶</a></h2>
+<p>The web layer is implemented with Flask in <code class="docutils literal notranslate"><span class="pre">src/app.py</span></code>. It exposes a testable <code class="docutils literal notranslate"><span class="pre">create_app(...)</span></code> factory and provides the following routes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/</span></code> redirects to <code class="docutils literal notranslate"><span class="pre">/analysis</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/analysis</span></code> renders the analysis page.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/pull-data</span></code> triggers the data refresh workflow.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/update-analysis</span></code> refreshes analysis results from the database.</p></li>
+</ul>
+<p>The page includes stable UI selectors such as <code class="docutils literal notranslate"><span class="pre">data-testid=&quot;pull-data-btn&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">data-testid=&quot;update-analysis-btn&quot;</span></code>
+so tests can locate buttons reliably.</p>
+</section>
+<section id="etl-layer">
+<h2>ETL Layer<a class="headerlink" href="#etl-layer" title="Link to this heading">¶</a></h2>
+<p>The ETL workflow is coordinated by <code class="docutils literal notranslate"><span class="pre">src/refresh_data.py</span></code>. It runs the scraper, executes the cleaning process, loads
+cleaned JSON records, and inserts new rows into PostgreSQL.</p>
+<p>The lower-level database loading logic lives in <code class="docutils literal notranslate"><span class="pre">src/load_data.py</span></code>. It parses dates and numeric fields, creates the
+required <code class="docutils literal notranslate"><span class="pre">applicants</span></code> table, and inserts cleaned records.</p>
+</section>
+<section id="database-layer">
+<h2>Database Layer<a class="headerlink" href="#database-layer" title="Link to this heading">¶</a></h2>
+<p>The application stores records in PostgreSQL using the Module 3 schema. The <code class="docutils literal notranslate"><span class="pre">applicants</span></code> table includes fields such as
+<code class="docutils literal notranslate"><span class="pre">program</span></code>, <code class="docutils literal notranslate"><span class="pre">date_added</span></code>, <code class="docutils literal notranslate"><span class="pre">url</span></code>, <code class="docutils literal notranslate"><span class="pre">status</span></code>, <code class="docutils literal notranslate"><span class="pre">term</span></code>, <code class="docutils literal notranslate"><span class="pre">degree</span></code>, <code class="docutils literal notranslate"><span class="pre">us_or_international</span></code>, <code class="docutils literal notranslate"><span class="pre">gpa</span></code>, GRE fields,
+and LLM-generated program and university fields.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">url</span></code> field is unique and is used as the idempotency key. Duplicate rows are ignored with <code class="docutils literal notranslate"><span class="pre">ON</span> <span class="pre">CONFLICT</span> <span class="pre">(url)</span> <span class="pre">DO</span>
+<span class="pre">NOTHING</span></code>.</p>
+</section>
+<section id="analysis-layer">
+<h2>Analysis Layer<a class="headerlink" href="#analysis-layer" title="Link to this heading">¶</a></h2>
+<p>The query layer is implemented in <code class="docutils literal notranslate"><span class="pre">src/query_data.py</span></code>. It defines SQL questions, runs queries, formats result rows,
+and returns the analysis data used by the Flask template.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">GradCafe Graduate Admissions Analytics System</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview and Setup</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#web-layer">Web Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#etl-layer">ETL Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#database-layer">Database Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#analysis-layer">Analysis Layer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="overview.html" title="previous chapter">Overview and Setup</a></li>
+      <li>Next: <a href="testing.html" title="next chapter">Testing Guide</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Liqing Yuan.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/architecture.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
