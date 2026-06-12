@@ -151,23 +151,37 @@ The project achieves 100% coverage for all application logic under module_4/src.
 
 ## Documentation
 
-Sphinx documentation is generated locally. 
+The project documentation is generated using Sphinx.
 
-Generated HTML files: module_4/docs/build/html
+Documentation can be viewed locally:
 
-Open the documentation homepage: module_4/docs/build/html/index.html 
+module_4/docs/build/html/index.html
+
+The documentation is also hosted through Read the Docs.
+
+Read the Docs URL:
+
+https://jhu-software-concepts-ly.readthedocs.io/en/latest/
 
 Documentation includes:
 
 - Overview and setup
-- Architecture
-- Testing guide
-- API reference
 
-Because the GitHub repository is private, Read the Docs Community cannot host the documentation. The generated HTML 
-documentation is included directly in the repository.
+- Architecture
+
+- Testing guide
+
+- API reference
 
 The active GitHub Actions workflow is located at the repository root under .github/workflows/tests.yml, because GitHub 
 Actions only recognizes workflow files stored in the repository-level .github/workflows directory. A copy is also 
 included under module_4/.github/workflows/tests.yml for assignment deliverables.
 ---
+
+## Theme Note
+
+The documentation was originally configured to use the sphinx-rtd-theme. However, due to SSL certificate issues 
+preventing installation of the package in the local environment, the default Sphinx alabaster theme was used instea.
+
+This change only affects the visual appearance of the documentation and does not impact any required functionality, 
+content, API references, or generated HTML output.
